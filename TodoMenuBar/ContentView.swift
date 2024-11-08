@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var todos: [Todo] = []
     @State private var newTodoTitle: String = ""
     @State private var showMenu = false
+    private let appVersion = "1.0.1"
     
     init() {
         let loadedTodos = loadTodos()
@@ -43,6 +44,11 @@ struct ContentView: View {
                         }
                         .buttonStyle(.plain)
                         
+                        Button(action: showHelp) {
+                            Label("Help", systemImage: "questionmark.circle")
+                        }
+                        .buttonStyle(.plain)
+                        
                         Button(action: quitApp) {
                             Label("Quit", systemImage: "power")
                         }
@@ -67,11 +73,7 @@ struct ContentView: View {
                         
                         Spacer()
                         
-                        Button(action: { deleteTodo(todo) }) {
-                            Image(systemName: "minus.circle.fill")
-                                .foregroundColor(.red)
-                        }
-                        .buttonStyle(.plain)
+                        // Removed the minus circle fill button
                     }
                 }
                 .onDelete(perform: deleteTodos)
@@ -119,10 +121,32 @@ struct ContentView: View {
     private func showAbout() {
         let alert = NSAlert()
         alert.messageText = "TodoMenuBar"
-        alert.informativeText = "A simple menu bar todo list app\nVersion 1.0\n\nCreated By Marc J. Greenberg (marc@codemarc.net)\nCoded by GenAI (CODY: CHAT)"
+        alert.informativeText = "A simple menu bar todo list app\nVersion \(appVersion)\n\nCreated By Marc J. Greenberg (marc@codemarc.net)\nCoded by GenAI (CODY: CHAT)"
         alert.alertStyle = .informational
         alert.icon = NSImage(named: "AppIcon")
         alert.addButton(withTitle: "OK")
+        alert.accessoryView = NSTextField(labelWithString: alert.informativeText)
+        (alert.accessoryView as? NSTextField)?.alignment = .left
+        alert.runModal()
+        showMenu = false
+    }
+    
+    private func showHelp() {
+        let alert = NSAlert()
+        let helpText = 
+            "You can add, edit, delete, and mark tasks as completed.\n\n" +
+            "To add a new task, type in the text field and click the plus button.\n" +
+            "To mark a task as completed, click the circle next to the task.\n" +
+            "To delete a task swipe  left on the task.\n" +
+            "To delete all tasks, click the trash button in the menu bar."
+
+        alert.messageText = "Todo Help"
+        alert.informativeText = "This is a simple todo list app." 
+        alert.alertStyle = .informational
+        alert.icon = NSImage(named: "AppIcon")
+        alert.addButton(withTitle: "OK")
+        alert.accessoryView = NSTextField(labelWithString: helpText)
+        (alert.accessoryView as? NSTextField)?.alignment = .left
         alert.runModal()
         showMenu = false
     }
