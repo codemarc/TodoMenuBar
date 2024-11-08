@@ -5,6 +5,9 @@ struct ContentView: View {
     @State private var todos: [Todo] = []
     @State private var newTodoTitle: String = ""
     @State private var showMenu = false
+    @State private var selectedTodoId: UUID? = nil
+    @State private var isEditing = false
+    @State private var editedTodoTitle: String = ""
     private let appVersion = "1.0.1"
     
     init() {
@@ -14,6 +17,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+
             HStack {
                 TextField("New todo", text: $newTodoTitle)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -36,7 +40,13 @@ struct ContentView: View {
                                 .foregroundColor(.red)
                         }
                         .buttonStyle(.plain)
-                        
+
+                        Button(action: archiveCompleted) {
+                            Label("Archive Completed", systemImage: "archivebox")
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+
                         Divider()
                         
                         Button(action: showAbout) {
@@ -59,7 +69,7 @@ struct ContentView: View {
             }
             .padding()
             
-            List {
+            List(selection: $selectedTodoId) {  // Add selection parameter
                 ForEach(todos) { todo in
                     HStack {
                         Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -68,18 +78,35 @@ struct ContentView: View {
                                 toggleTodo(todo)
                             }
                         
-                        Text(todo.title)
-                            .strikethrough(todo.isCompleted)
+                        if isEditing && selectedTodoId == todo.id {
+                            TextField("Edit todo", text: $editedTodoTitle, onCommit: {
+                                updateTodoTitle(todo)
+                            })
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .foregroundColor(.white)  // Set font color to white when editing
+                        } else {
+                            Text(todo.title)
+                                .strikethrough(todo.isCompleted)
+                                .foregroundColor(selectedTodoId == todo.id ? .secondary : .primary)  // Add highlighting
+                        }
                         
                         Spacer()
-                        
-                        // Removed the minus circle fill button
+                    }
+                    .contentShape(Rectangle())  // Makes the whole row clickable
+                    .onTapGesture {
+                        if selectedTodoId == todo.id && !isEditing {
+                            isEditing = true
+                            editedTodoTitle = todo.title
+                        } else {
+                            selectedTodoId = todo.id
+                            isEditing = false
+                        }
                     }
                 }
                 .onDelete(perform: deleteTodos)
             }
         }
-        .frame(width: 300, height: 400)
+                .frame(width: 300, height: 400)
     }
     
     private func addTodo() {
@@ -113,6 +140,33 @@ struct ContentView: View {
         showMenu = false
         saveTodos()
     }
+
+    private func archiveCompleted() {
+        let completedTodos = todos.filter { $0.isCompleted }
+        let archiveURL = getArchiveFileURL()
+        
+        do {
+            let existingData = try? Data(contentsOf: archiveURL)
+            var archivedTodos: [Todo] = []
+            
+            if let existingData = existingData {
+                archivedTodos = try JSONDecoder().decode([Todo].self, from: existingData)
+            }
+            
+            archivedTodos.append(contentsOf: completedTodos)
+            let archiveData = try JSONEncoder().encode(archivedTodos)
+            try archiveData.write(to: archiveURL)
+            
+            todos.removeAll(where: { $0.isCompleted })
+            showMenu = false
+            saveTodos()
+        } catch {
+            print("Archiving error: \(error)")
+        }
+    }
+
+
+
      
     private func quitApp() {
         NSApplication.shared.terminate(nil)
@@ -158,6 +212,11 @@ struct ContentView: View {
     private func getTodosFileURL() -> URL {
         getDocumentsDirectory().appendingPathComponent("todos.json")
     }
+
+    private func getArchiveFileURL() -> URL {
+        getDocumentsDirectory().appendingPathComponent("archive.json")
+    }
+
     
     private func saveTodos() {
         let fileURL = getTodosFileURL()
@@ -180,6 +239,14 @@ struct ContentView: View {
         } catch {
             //print("Loading error: \(error.localizedDescription)")
             return []
+        }
+    }
+    
+    private func updateTodoTitle(_ todo: Todo) {
+        if let index = todos.firstIndex(where: { $0.id == todo.id }) {
+            todos[index].title = editedTodoTitle
+            saveTodos()
+            isEditing = false
         }
     }
     
