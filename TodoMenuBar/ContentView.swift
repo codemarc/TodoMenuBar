@@ -48,6 +48,13 @@ struct ContentView: View {
                         .buttonStyle(.plain)
 
                         Divider()
+
+                        Button(action: openDataDirectory) {
+                            Label("Data Files", systemImage: "folder")
+                        }
+                        .buttonStyle(.plain)
+
+                        Divider()
                         
                         Button(action: showAbout) {
                             Label("About", systemImage: "info.circle")
@@ -59,6 +66,7 @@ struct ContentView: View {
                         }
                         .buttonStyle(.plain)
                         
+
                         Button(action: quitApp) {
                             Label("Quit", systemImage: "power")
                         }
@@ -69,9 +77,17 @@ struct ContentView: View {
             }
             .padding()
             
-            List(selection: $selectedTodoId) {  // Add selection parameter
+            List(selection: $selectedTodoId) {
                 ForEach(todos) { todo in
+
                     HStack {
+                        if selectedTodoId == todo.id {
+                           Image(systemName: "line.3.horizontal")
+                            .foregroundColor(.white)
+                            .opacity(0.8)
+                            .font(.system(size: 14, weight: .bold))
+                        }
+    
                         Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
                             .foregroundColor(todo.isCompleted ? .green : .gray)
                             .onTapGesture {
@@ -83,16 +99,18 @@ struct ContentView: View {
                                 updateTodoTitle(todo)
                             })
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .foregroundColor(.white)  // Set font color to white when editing
+                            .foregroundColor(.white)
                         } else {
                             Text(todo.title)
                                 .strikethrough(todo.isCompleted)
-                                .foregroundColor(selectedTodoId == todo.id ? .secondary : .primary)  // Add highlighting
+                                .foregroundColor(selectedTodoId == todo.id ? .secondary : .primary)
                         }
                         
                         Spacer()
+
+                       
                     }
-                    .contentShape(Rectangle())  // Makes the whole row clickable
+                    .contentShape(Rectangle())
                     .onTapGesture {
                         if selectedTodoId == todo.id && !isEditing {
                             isEditing = true
@@ -103,12 +121,23 @@ struct ContentView: View {
                         }
                     }
                 }
+                .onMove(perform: moveTodos)
                 .onDelete(perform: deleteTodos)
             }
         }
-                .frame(width: 300, height: 400)
+        .frame(width: 300, height: 400)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            selectedTodoId = nil
+            isEditing = false
+        }
     }
     
+    private func moveTodos(from source: IndexSet, to destination: Int) {
+        todos.move(fromOffsets: source, toOffset: destination)
+        saveTodos()
+    }
+
     private func addTodo() {
         guard !newTodoTitle.isEmpty else { return }
         todos.append(Todo(title: newTodoTitle))
@@ -165,9 +194,6 @@ struct ContentView: View {
         }
     }
 
-
-
-     
     private func quitApp() {
         NSApplication.shared.terminate(nil)
     }
@@ -205,6 +231,10 @@ struct ContentView: View {
         showMenu = false
     }
     
+    private func openDataDirectory() {
+        NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: getDocumentsDirectory().path)
+        showMenu = false
+    }
     private func getDocumentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
