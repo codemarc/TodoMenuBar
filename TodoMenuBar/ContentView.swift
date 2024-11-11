@@ -8,11 +8,17 @@ struct ContentView: View {
     @State private var selectedTodoId: UUID? = nil
     @State private var isEditing = false
     @State private var editedTodoTitle: String = ""
-    private let appVersion = "1.0.1"
+    private let appVersion = "1.1.0"
     
     init() {
         let loadedTodos = loadTodos()
         _todos = State(initialValue: loadedTodos)
+    }
+    
+    fileprivate func socialButton(imageName: String, url: String) -> some View {
+        return Button(action: { NSWorkspace.shared.open(URL(string: url)!) }) {
+            Image(imageName).resizable().scaledToFit().frame(width: 16, height: 16)
+        }.buttonStyle(.plain)
     }
     
     var body: some View {
@@ -76,7 +82,16 @@ struct ContentView: View {
                 }
             }
             .padding()
-            
+
+            HStack(spacing: 12) {
+                socialButton(imageName: "github", url: "https://github.com")
+                socialButton(imageName: "linkedin", url: "https://linkedin.com")
+                socialButton(imageName: "chatgpt", url: "https://chat.openai.com")
+                socialButton(imageName: "claude", url: "https://claude.ai")
+            }
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             List(selection: $selectedTodoId) {
                 ForEach(todos) { todo in
 
@@ -140,7 +155,7 @@ struct ContentView: View {
 
     private func addTodo() {
         guard !newTodoTitle.isEmpty else { return }
-        todos.append(Todo(title: newTodoTitle))
+        todos.insert(Todo(title: newTodoTitle), at: 0)
         newTodoTitle = ""
         saveTodos()
     }
