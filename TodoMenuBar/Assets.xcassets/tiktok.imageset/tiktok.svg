@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Musical note -->
+  <path d="M180 120 
+           L180 220
+           C180 250, 150 270, 120 250
+           C90 230, 90 180, 120 160
+           C150 140, 180 160, 180 190"
+        fill="none"
+        stroke="black"
+        stroke-width="20"
+        stroke-linecap="round"/>
+        
+  <!-- Top curve -->
+  <path d="M120 80 
+           C140 80, 180 80, 200 80
+           L200 140"
+        fill="none"
+        stroke="black"
+        stroke-width="20"
+        stroke-linecap="round"/>
+        
+  <!-- Middle dash -->
+  <line x1="140" y1="110" x2="180" y2="110"
+        stroke="black"
+        stroke-width="20"
+        stroke-linecap="round"/>
+</svg>

@@ -1,14 +1,24 @@
 import SwiftUI
 import AppKit
 
-struct ContentView: View {
+struct ContentView: View {                                                  
     @State private var todos: [Todo] = []
     @State private var newTodoTitle: String = ""
     @State private var showMenu = false
     @State private var selectedTodoId: UUID? = nil
     @State private var isEditing = false
     @State private var editedTodoTitle: String = ""
-    private let appVersion = "1.1.0"
+
+    @State private var genaiURL: String = UserDefaults.standard.string(forKey: "genaiURL") ?? "https://ai.com"
+    @State private var githubURL: String = UserDefaults.standard.string(forKey: "githubURL") ?? "https://github.com"
+    @State private var linkedinURL: String = UserDefaults.standard.string(forKey: "linkedinURL") ?? "https://linkedin.com"
+    @State private var twitterURL: String = UserDefaults.standard.string(forKey: "twitterURL") ?? "https://twitter.com"
+    @State private var instagramURL: String = UserDefaults.standard.string(forKey: "instagramURL") ?? "https://instagram.com"
+    @State private var tiktokURL: String = UserDefaults.standard.string(forKey: "tiktokURL") ?? "https://tiktok.com"
+    @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "https://client.schwab.com/app/accounts/positions/#/"
+
+
+    private let appVersion = "1.1.1"
     
     init() {
         let loadedTodos = loadTodos()
@@ -20,6 +30,7 @@ struct ContentView: View {
             Image(imageName).resizable().scaledToFit().frame(width: 16, height: 16)
         }.buttonStyle(.plain)
     }
+
     
     var body: some View {
         VStack {
@@ -54,6 +65,12 @@ struct ContentView: View {
                         .buttonStyle(.plain)
 
                         Divider()
+                        
+                        Button(action: showSettings) {
+                            Label("Settings", systemImage: "gear")
+                        }
+                        .buttonStyle(.plain)
+
 
                         Button(action: openDataDirectory) {
                             Label("Data Files", systemImage: "folder")
@@ -84,10 +101,13 @@ struct ContentView: View {
             .padding()
 
             HStack(spacing: 12) {
-                socialButton(imageName: "github", url: "https://github.com")
-                socialButton(imageName: "linkedin", url: "https://linkedin.com")
-                socialButton(imageName: "chatgpt", url: "https://chat.openai.com")
-                socialButton(imageName: "claude", url: "https://claude.ai")
+                socialButton(imageName: "chatgpt", url: genaiURL)
+                socialButton(imageName: "github", url: githubURL)
+                socialButton(imageName: "linkedin", url: linkedinURL)
+                socialButton(imageName: "twitter", url: twitterURL)
+                socialButton(imageName: "instagram", url: instagramURL) 
+                socialButton(imageName: "tiktok", url: tiktokURL)
+                socialButton(imageName: "invest", url: investURL)
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -245,7 +265,7 @@ struct ContentView: View {
         alert.runModal()
         showMenu = false
     }
-    
+
     private func openDataDirectory() {
         NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: getDocumentsDirectory().path)
         showMenu = false
@@ -294,5 +314,115 @@ struct ContentView: View {
             isEditing = false
         }
     }
-    
+
+    private func showSettings() {
+        let alert = NSAlert()
+        alert.messageText = "TodoMenuBar Settings"
+        alert.alertStyle = .informational
+        alert.icon = NSImage(named: "AppIcon")
+        alert.addButton(withTitle: "Save")
+        alert.addButton(withTitle: "Cancel")
+        
+        let settingsView = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 280))
+        let sx=20, offset=90,sy=240
+        var n=0
+
+        // GenAi URL field
+        let genaiLabel = NSTextField(labelWithString: "chatgpt:")
+        genaiLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+        settingsView.addSubview(genaiLabel)
+        
+        let genaiTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
+        genaiTextField.stringValue = genaiURL
+        genaiTextField.placeholderString = "Enter ChatGPT URL"
+        settingsView.addSubview(genaiTextField)
+        n=n+1
+
+        // GitHub URL field
+        let githubLabel = NSTextField(labelWithString: "github:")
+        githubLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+        settingsView.addSubview(githubLabel)
+        
+        let githubTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
+        githubTextField.stringValue = githubURL
+        githubTextField.placeholderString = "Enter GitHub URL"
+        settingsView.addSubview(githubTextField)
+        n=n+1
+        
+        // LinkedIn URL field
+        let linkedinLabel = NSTextField(labelWithString: "linkedin:")
+        linkedinLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+        settingsView.addSubview(linkedinLabel)
+        
+        let linkedinTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
+        linkedinTextField.stringValue = linkedinURL
+        linkedinTextField.placeholderString = "Enter LinkedIn URL"
+        settingsView.addSubview(linkedinTextField)
+        n=n+1
+        
+        // Twitter URL field
+        let twitterLabel = NSTextField(labelWithString: "twitter:")
+        twitterLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+        settingsView.addSubview(twitterLabel)
+        
+        let twitterTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
+        twitterTextField.stringValue = twitterURL
+        twitterTextField.placeholderString = "Enter Twitter URL"
+        settingsView.addSubview(twitterTextField)
+        n=n+1
+        
+        // Instagram URL field
+        let instagramLabel = NSTextField(labelWithString: "insta:")
+        instagramLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+        settingsView.addSubview(instagramLabel)
+        
+        let instagramTextField = NSTextField(frame: NSRect(x: 90, y: sy-(n*30), width: 276, height: 20))
+        instagramTextField.stringValue = instagramURL
+        instagramTextField.placeholderString = "Enter Instagram URL"
+        settingsView.addSubview(instagramTextField)
+        n=n+1
+        
+        // TikTok URL field
+        let tiktokLabel = NSTextField(labelWithString: "tiktok:")
+        tiktokLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+        settingsView.addSubview(tiktokLabel)
+        
+        let tiktokTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
+        tiktokTextField.stringValue = tiktokURL
+        tiktokTextField.placeholderString = "Enter TikTok URL"
+        settingsView.addSubview(tiktokTextField)
+        n=n+1
+
+        // Invest URL field
+        let investLabel = NSTextField(labelWithString: "invest:")
+        investLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+        settingsView.addSubview(investLabel)
+
+        let investTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
+        investTextField.stringValue = investURL
+        investTextField.placeholderString = "Enter Investing URL"
+        settingsView.addSubview(investTextField)
+        n=n+1
+        
+        alert.accessoryView = settingsView
+        
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            githubURL = githubTextField.stringValue
+            linkedinURL = linkedinTextField.stringValue
+            twitterURL = twitterTextField.stringValue
+            instagramURL = instagramTextField.stringValue
+            tiktokURL = tiktokTextField.stringValue
+            
+            UserDefaults.standard.set(githubURL, forKey: "githubURL")
+            UserDefaults.standard.set(linkedinURL, forKey: "linkedinURL")
+            UserDefaults.standard.set(twitterURL, forKey: "twitterURL")
+            UserDefaults.standard.set(instagramURL, forKey: "instagramURL")
+            UserDefaults.standard.set(tiktokURL, forKey: "tiktokURL")
+        }
+        showMenu = false
+    }
+
+
+
 }
