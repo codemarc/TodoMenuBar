@@ -220,8 +220,8 @@ struct ContentView: View {
         alert.alertStyle = .informational
         alert.icon = NSImage(named: "AppIcon")
         alert.addButton(withTitle: "OK")
-        alert.accessoryView = NSTextField(labelWithString: alert.informativeText)
-        (alert.accessoryView as? NSTextField)?.alignment = .left
+        // alert.accessoryView = NSTextField(labelWithString: alert.informativeText)
+        // (alert.accessoryView as? NSTextField)?.alignment = .left
         alert.runModal()
         showMenu = false
     }
