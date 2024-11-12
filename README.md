@@ -66,6 +66,6 @@ In the settings, you can configure the URLs for various social media platforms. 
 
 ## About
 
-Version: 1.1.1  
+Version: 1.1.2  
 Created By: Marc J. Greenberg (marc@codemarc.net)  
 Coded by: GenAI (CODY: CHAT)

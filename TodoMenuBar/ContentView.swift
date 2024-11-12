@@ -18,16 +18,52 @@ struct ContentView: View {
     @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "https://client.schwab.com/app/accounts/positions/#/"
 
 
-    private let appVersion = "1.1.1"
+    private let appVersion = "1.1.2"
     
     init() {
         let loadedTodos = loadTodos()
         _todos = State(initialValue: loadedTodos)
     }
+
     
     fileprivate func socialButton(imageName: String, url: String) -> some View {
         return Button(action: { NSWorkspace.shared.open(URL(string: url)!) }) {
-            Image(imageName).resizable().scaledToFit().frame(width: 16, height: 16)
+            Image(imageName)
+            .resizable()
+            .scaledToFit()
+            .padding(0)
+            .frame(width: 18, height: 18)
+            .preferredColorScheme(.dark)
+            .colorInvert()
+            .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
+        }.buttonStyle(.plain)
+    }
+
+    fileprivate func outlookButton() -> some View {
+        return Button(action: { 
+            if let outlookURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.microsoft.Outlook") {
+                NSWorkspace.shared.openApplication(at: outlookURL, configuration: NSWorkspace.OpenConfiguration())
+            }
+        }) {
+            Image("outlook")
+            .resizable()
+            .scaledToFit()
+            .padding(0)
+            .frame(width: 18, height: 18)
+            .preferredColorScheme(.dark)
+            .colorInvert()
+            .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
+        }.buttonStyle(.plain)
+    }
+
+    fileprivate func settingsButton() -> some View {
+        return Button(action: showSettings) {
+            Image("settings")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 18, height: 18)
+            .colorInvert()
+            .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
         }.buttonStyle(.plain)
     }
 
@@ -65,12 +101,6 @@ struct ContentView: View {
                         .buttonStyle(.plain)
 
                         Divider()
-                        
-                        Button(action: showSettings) {
-                            Label("Settings", systemImage: "gear")
-                        }
-                        .buttonStyle(.plain)
-
 
                         Button(action: openDataDirectory) {
                             Label("Data Files", systemImage: "folder")
@@ -108,6 +138,8 @@ struct ContentView: View {
                 socialButton(imageName: "instagram", url: instagramURL) 
                 socialButton(imageName: "tiktok", url: tiktokURL)
                 socialButton(imageName: "invest", url: investURL)
+                outlookButton()
+                settingsButton()
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .leading)
