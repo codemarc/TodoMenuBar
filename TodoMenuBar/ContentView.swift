@@ -33,8 +33,6 @@ struct ContentView: View {
             .scaledToFit()
             .padding(0)
             .frame(width: 18, height: 18)
-            .preferredColorScheme(.dark)
-            .colorInvert()
             .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
         }.buttonStyle(.plain)
     }
@@ -50,19 +48,16 @@ struct ContentView: View {
             .scaledToFit()
             .padding(0)
             .frame(width: 18, height: 18)
-            .preferredColorScheme(.dark)
-            .colorInvert()
             .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
         }.buttonStyle(.plain)
     }
 
     fileprivate func settingsButton() -> some View {
         return Button(action: showSettings) {
-            Image("settings")
+            Image(systemName: "gearshape.fill")
             .resizable()
             .scaledToFit()
             .frame(width: 18, height: 18)
-            .colorInvert()
             .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
         }.buttonStyle(.plain)
     }
