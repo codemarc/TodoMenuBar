@@ -1,7 +1,8 @@
 import SwiftUI
 import AppKit
 
-struct ContentView: View {                                                  
+struct ContentView: View {
+    @Environment(\.colorScheme) var colorScheme                                                  
     @State private var todos: [Todo] = []
     @State private var newTodoTitle: String = ""
     @State private var showMenu = false
@@ -58,6 +59,7 @@ struct ContentView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 18, height: 18)
+            .colorMultiply(colorScheme != .dark ? .white : .black) // Adjust color for dark mode
             .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
         }.buttonStyle(.plain)
     }
@@ -67,9 +69,10 @@ struct ContentView: View {
         VStack {
 
             HStack {
-                TextField("New todo", text: $newTodoTitle)
+                // On enter key, add the todo
+                TextField("New todo", text: $newTodoTitle, onCommit: addTodo)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                
+
                 Button(action: addTodo) {
                     Image(systemName: "plus.circle.fill")
                 }
