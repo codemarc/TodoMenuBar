@@ -2,13 +2,14 @@ import SwiftUI
 import AppKit
 
 struct ContentView: View {
-    @Environment(\.colorScheme) var colorScheme                                                  
+    @Environment(\.colorScheme) var colorScheme
     @State private var todos: [Todo] = []
     @State private var newTodoTitle: String = ""
     @State private var showMenu = false
     @State private var selectedTodoId: UUID? = nil
     @State private var isEditing = false
     @State private var editedTodoTitle: String = ""
+    @State private var plusButton: NSButton?
 
     @State private var genaiURL: String = UserDefaults.standard.string(forKey: "genaiURL") ?? "https://ai.com"
     @State private var githubURL: String = UserDefaults.standard.string(forKey: "githubURL") ?? "https://github.com"
@@ -19,7 +20,7 @@ struct ContentView: View {
     @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "https://client.schwab.com/app/accounts/positions/#/"
 
 
-    private let appVersion = "1.1.2"
+    private let appVersion = "1.1.3"
     
     init() {
         let loadedTodos = loadTodos()
@@ -69,64 +70,45 @@ struct ContentView: View {
         VStack {
 
             HStack {
-                // On enter key, add the todo
-                TextField("New todo", text: $newTodoTitle, onCommit: addTodo)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                Button(action: addTodo) {
-                    Image(systemName: "plus.circle.fill")
-                }
-                
-                Button {
-                    showMenu.toggle()
+                Menu {
+                    Button(action: deleteAllAndClose) {Label("Delete All", systemImage: "trash").foregroundColor(.red)}
+                    Button(action: archiveCompleted) {Label("Archive Completed", systemImage: "archivebox").foregroundColor(.blue)}
+                    Divider()
+                    Button(action: openDataDirectory) {Label("Data Files", systemImage: "folder")}
+                    Divider()
+                    Button(action: showAbout) {Label("About", systemImage: "info.circle")}
+                    Button(action: showHelp) { Label("Help", systemImage: "questionmark.circle") }
+                    Button(action: quitApp) {  Label("Quit", systemImage: "power") }
                 } label: {
-                    Image(systemName: "chevron.down.circle")
+                    Image(systemName: "line.3.horizontal")
+                        .frame(width: 18, height: 18)
+                        .background(Color(.windowBackgroundColor))
                 }
-                .menuStyle(.borderlessButton)
+                .menuStyle(BorderlessButtonMenuStyle())
                 .menuIndicator(.hidden)
-                .popover(isPresented: $showMenu, arrowEdge: .bottom) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Button(action: deleteAllAndClose) {
-                            Label("Delete All", systemImage: "trash")
-                                .foregroundColor(.red)
-                        }
-                        .buttonStyle(.plain)
+                .padding(0)
 
-                        Button(action: archiveCompleted) {
-                            Label("Archive Completed", systemImage: "archivebox")
-                                .foregroundColor(.blue)
+                HStack {
+                    // On enter key, add the todo
+                    TextField("New todo", text: $newTodoTitle)
+                        .padding(2)
+                        .frame(width: 228, height: 20)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .border(Color.white, width: 0.5)
+                        .onSubmit {
+                            addTodo()
+                            newTodoTitle = ""
                         }
-                        .buttonStyle(.plain)
 
-                        Divider()
-
-                        Button(action: openDataDirectory) {
-                            Label("Data Files", systemImage: "folder")
-                        }
-                        .buttonStyle(.plain)
-
-                        Divider()
-                        
-                        Button(action: showAbout) {
-                            Label("About", systemImage: "info.circle")
-                        }
-                        .buttonStyle(.plain)
-                        
-                        Button(action: showHelp) {
-                            Label("Help", systemImage: "questionmark.circle")
-                        }
-                        .buttonStyle(.plain)
-                        
-
-                        Button(action: quitApp) {
-                            Label("Quit", systemImage: "power")
-                        }
-                        .buttonStyle(.plain)
+                    Button(action:{addTodo();newTodoTitle = ""}) {
+                        Image(systemName: "plus.circle.fill")
                     }
-                    .padding(8)
                 }
+
             }
-            .padding()
+            .padding(8)
+
 
             HStack(spacing: 12) {
                 socialButton(imageName: "chatgpt", url: genaiURL)
