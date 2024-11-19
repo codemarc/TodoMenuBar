@@ -18,9 +18,10 @@ struct ContentView: View {
     @State private var instagramURL: String = UserDefaults.standard.string(forKey: "instagramURL") ?? "https://instagram.com"
     @State private var tiktokURL: String = UserDefaults.standard.string(forKey: "tiktokURL") ?? "https://tiktok.com"
     @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "https://client.schwab.com/app/accounts/positions/#/"
+    @State private var cmcURL: String = UserDefaults.standard.string(forKey: "cmcURL") ?? "https://codemarc.net"
 
 
-    private let appVersion = "1.1.3"
+    private let appVersion = "1.1.4"
     
     init() {
         let loadedTodos = loadTodos()
@@ -72,12 +73,14 @@ struct ContentView: View {
             HStack {
 
                 Menu {
+                    Button(action: showAbout) {Label("About", systemImage: "info.circle")}
+                    Divider()
+                    Button(action: showSettings) {Label("Settings", systemImage: "gearshape.fill")}
+                    Button(action: openDataDirectory) {Label("Data Files", systemImage: "folder")}
+                    Divider()
                     Button(action: deleteAllAndClose) {Label("Delete All", systemImage: "trash").foregroundColor(.red)}
                     Button(action: archiveCompleted) {Label("Archive Completed", systemImage: "archivebox").foregroundColor(.blue)}
                     Divider()
-                    Button(action: openDataDirectory) {Label("Data Files", systemImage: "folder")}
-                    Divider()
-                    Button(action: showAbout) {Label("About", systemImage: "info.circle")}
                     Button(action: showHelp) { Label("Help", systemImage: "questionmark.circle") }
                     Button(action: quitApp) {  Label("Quit", systemImage: "power") }
                 } label: {
@@ -89,7 +92,7 @@ struct ContentView: View {
                 .menuIndicator(.hidden)
                 .padding(0)
 
-                HStack {
+                 HStack {
                     // On enter key, add the todo
                     TextField("New todo", text: $newTodoTitle)
                         .padding(2)
@@ -119,7 +122,7 @@ struct ContentView: View {
                 socialButton(imageName: "tiktok", url: tiktokURL)
                 socialButton(imageName: "invest", url: investURL)
                 outlookButton()
-                settingsButton()
+                socialButton(imageName: "cmc", url: cmcURL)
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .leading)
