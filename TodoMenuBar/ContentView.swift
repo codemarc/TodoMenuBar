@@ -22,13 +22,13 @@ struct ContentView: View {
 
 
     private let appVersion = "1.1.4"
-    
+
     init() {
         let loadedTodos = loadTodos()
         _todos = State(initialValue: loadedTodos)
     }
 
-    
+
     fileprivate func socialButton(imageName: String, url: String) -> some View {
         return Button(action: { NSWorkspace.shared.open(URL(string: url)!) }) {
             Image(imageName)
@@ -41,7 +41,7 @@ struct ContentView: View {
     }
 
     fileprivate func outlookButton() -> some View {
-        return Button(action: { 
+        return Button(action: {
             if let outlookURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.microsoft.Outlook") {
                 NSWorkspace.shared.openApplication(at: outlookURL, configuration: NSWorkspace.OpenConfiguration())
             }
@@ -66,68 +66,72 @@ struct ContentView: View {
         }.buttonStyle(.plain)
     }
 
-    
-    var body: some View {
-        VStack {
+	fileprivate func todoControl() -> some View {
+		return HStack {
+			// On enter key, add the todo
+			TextField("New todo", text: $newTodoTitle)
+			.padding(2)
+			.frame(width: 228, height: 20)
+			.textFieldStyle(PlainTextFieldStyle())
+			.border(Color.white, width: 0.5)
+			.onSubmit {
+				addTodo()
+				newTodoTitle = ""
+			}
+			Button(action:{addTodo();newTodoTitle = ""}) {
+				Image(systemName: "plus.circle.fill")
+			}
+		}
+	}
 
-            HStack {
+	fileprivate func todoMenu() -> some View {
+		return  Menu {
+			Button(action: showAbout) {Label("About", systemImage: "info.circle")}
+			Divider()
+			Button(action: showSettings) {Label("Settings", systemImage: "gearshape.fill")}
+			Button(action: openDataDirectory) {Label("Data Files", systemImage: "folder")}
+			Divider()
+			Button(action: deleteAllAndClose) {Label("Delete All", systemImage: "trash").foregroundColor(.red)}
+			Button(action: archiveCompleted) {Label("Archive Completed", systemImage: "archivebox").foregroundColor(.blue)}
+			Divider()
+			Button(action: showHelp) { Label("Help", systemImage: "questionmark.circle") }
+			Button(action: quitApp) {  Label("Quit", systemImage: "power") }
+		} label: {
+			Image(systemName: "line.3.horizontal")
+			.frame(width: 18, height: 18)
+			.background(Color(.windowBackgroundColor))
 
-                Menu {
-                    Button(action: showAbout) {Label("About", systemImage: "info.circle")}
-                    Divider()
-                    Button(action: showSettings) {Label("Settings", systemImage: "gearshape.fill")}
-                    Button(action: openDataDirectory) {Label("Data Files", systemImage: "folder")}
-                    Divider()
-                    Button(action: deleteAllAndClose) {Label("Delete All", systemImage: "trash").foregroundColor(.red)}
-                    Button(action: archiveCompleted) {Label("Archive Completed", systemImage: "archivebox").foregroundColor(.blue)}
-                    Divider()
-                    Button(action: showHelp) { Label("Help", systemImage: "questionmark.circle") }
-                    Button(action: quitApp) {  Label("Quit", systemImage: "power") }
-                } label: {
-                    Image(systemName: "line.3.horizontal")
-                        .frame(width: 18, height: 18)
-                        .background(Color(.windowBackgroundColor))
-                }
-                .menuStyle(BorderlessButtonMenuStyle())
-                .menuIndicator(.hidden)
-                .padding(0)
+		}
+		.menuStyle(BorderlessButtonMenuStyle())
+		.menuIndicator(.hidden)
+		.padding(0)
+	}
 
-                 HStack {
-                    // On enter key, add the todo
-                    TextField("New todo", text: $newTodoTitle)
-                        .padding(2)
-                        .frame(width: 228, height: 20)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .border(Color.white, width: 0.5)
-                        .onSubmit {
-                            addTodo()
-                            newTodoTitle = ""
-                        }
+	fileprivate func todoMenuBar() -> some View {
+		return HStack {
+				todoMenu()
+				todoControl()
+			}.padding(8)
+	}
 
-                    Button(action:{addTodo();newTodoTitle = ""}) {
-                        Image(systemName: "plus.circle.fill")
-                    }
-                }
+	fileprivate func todoToolBar() -> some View {
+		return HStack(spacing: 12) {
+			socialButton(imageName: "cmc", url: cmcURL)
+			socialButton(imageName: "chatgpt", url: genaiURL)
+			socialButton(imageName: "github", url: githubURL)
+			socialButton(imageName: "linkedin", url: linkedinURL)
+			socialButton(imageName: "twitter", url: twitterURL)
+			socialButton(imageName: "instagram", url: instagramURL)
+			socialButton(imageName: "tiktok", url: tiktokURL)
+			socialButton(imageName: "invest", url: investURL)
+			outlookButton()
+		}
+		.padding(.horizontal)
+		.frame(maxWidth: .infinity, alignment: .leading)
+	}
 
-            }
-            .padding(8)
-
-
-            HStack(spacing: 12) {
-                socialButton(imageName: "chatgpt", url: genaiURL)
-                socialButton(imageName: "github", url: githubURL)
-                socialButton(imageName: "linkedin", url: linkedinURL)
-                socialButton(imageName: "twitter", url: twitterURL)
-                socialButton(imageName: "instagram", url: instagramURL) 
-                socialButton(imageName: "tiktok", url: tiktokURL)
-                socialButton(imageName: "invest", url: investURL)
-                outlookButton()
-                socialButton(imageName: "cmc", url: cmcURL)
-            }
-            .padding(.horizontal)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            List(selection: $selectedTodoId) {
+	fileprivate func todoList() -> some View {
+		return  List(selection: $selectedTodoId) {
                 ForEach(todos) { todo in
 
                     HStack {
@@ -137,13 +141,13 @@ struct ContentView: View {
                             .opacity(0.8)
                             .font(.system(size: 14, weight: .bold))
                         }
-    
+
                         Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
                             .foregroundColor(todo.isCompleted ? .green : .gray)
                             .onTapGesture {
                                 toggleTodo(todo)
                             }
-                        
+
                         if isEditing && selectedTodoId == todo.id {
                             TextField("Edit todo", text: $editedTodoTitle, onCommit: {
                                 updateTodoTitle(todo)
@@ -155,10 +159,7 @@ struct ContentView: View {
                                 .strikethrough(todo.isCompleted)
                                 .foregroundColor(selectedTodoId == todo.id ? .secondary : .primary)
                         }
-                        
                         Spacer()
-
-                       
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -174,6 +175,15 @@ struct ContentView: View {
                 .onMove(perform: moveTodos)
                 .onDelete(perform: deleteTodos)
             }
+	}
+
+
+
+	var body: some View {
+		VStack {
+			todoMenuBar()
+			todoToolBar()
+			todoList()
         }
         .frame(width: 300, height: 400)
         .contentShape(Rectangle())
@@ -182,7 +192,7 @@ struct ContentView: View {
             isEditing = false
         }
     }
-    
+
     private func moveTodos(from source: IndexSet, to destination: Int) {
         todos.move(fromOffsets: source, toOffset: destination)
         saveTodos()
@@ -194,26 +204,26 @@ struct ContentView: View {
         newTodoTitle = ""
         saveTodos()
     }
-    
+
     private func toggleTodo(_ todo: Todo) {
         if let index = todos.firstIndex(where: { $0.id == todo.id }) {
             todos[index].isCompleted.toggle()
             saveTodos()
         }
     }
-    
+
     private func deleteTodo(_ todo: Todo) {
         if let index = todos.firstIndex(where: { $0.id == todo.id }) {
             todos.remove(at: index)
             saveTodos()
         }
     }
-    
+
     private func deleteTodos(at offsets: IndexSet) {
         todos.remove(atOffsets: offsets)
         saveTodos()
     }
-    
+
     private func deleteAllAndClose() {
         todos.removeAll()
         showMenu = false
@@ -223,19 +233,19 @@ struct ContentView: View {
     private func archiveCompleted() {
         let completedTodos = todos.filter { $0.isCompleted }
         let archiveURL = getArchiveFileURL()
-        
+
         do {
             let existingData = try? Data(contentsOf: archiveURL)
             var archivedTodos: [Todo] = []
-            
+
             if let existingData = existingData {
                 archivedTodos = try JSONDecoder().decode([Todo].self, from: existingData)
             }
-            
+
             archivedTodos.append(contentsOf: completedTodos)
             let archiveData = try JSONEncoder().encode(archivedTodos)
             try archiveData.write(to: archiveURL)
-            
+
             todos.removeAll(where: { $0.isCompleted })
             showMenu = false
             saveTodos()
@@ -247,7 +257,7 @@ struct ContentView: View {
     private func quitApp() {
         NSApplication.shared.terminate(nil)
     }
-    
+
     private func showAbout() {
         let alert = NSAlert()
         alert.messageText = "TodoMenuBar"
@@ -260,10 +270,10 @@ struct ContentView: View {
         alert.runModal()
         showMenu = false
     }
-    
+
     private func showHelp() {
         let alert = NSAlert()
-        let helpText = 
+        let helpText =
             "You can add, edit, delete, and mark tasks as completed.\n\n" +
             "To add a new task, type in the text field and click the plus button.\n" +
             "To mark a task as completed, click the circle next to the task.\n" +
@@ -271,7 +281,7 @@ struct ContentView: View {
             "To delete all tasks, click the trash button in the menu bar."
 
         alert.messageText = "Todo Help"
-        alert.informativeText = "This is a simple todo list app." 
+        alert.informativeText = "This is a simple todo list app."
         alert.alertStyle = .informational
         alert.icon = NSImage(named: "AppIcon")
         alert.addButton(withTitle: "OK")
@@ -288,7 +298,7 @@ struct ContentView: View {
     private func getDocumentsDirectory() -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
-    
+
     private func getTodosFileURL() -> URL {
         getDocumentsDirectory().appendingPathComponent("todos.json")
     }
@@ -297,7 +307,7 @@ struct ContentView: View {
         getDocumentsDirectory().appendingPathComponent("archive.json")
     }
 
-    
+
     private func saveTodos() {
         let fileURL = getTodosFileURL()
         do {
@@ -311,7 +321,7 @@ struct ContentView: View {
     private func loadTodos() -> [Todo] {
         let fileURL = getTodosFileURL()
         print("Loading todos from: \(fileURL)")
-        
+
         do {
             let data = try Data(contentsOf: fileURL)
             let loadedTodos = try JSONDecoder().decode([Todo].self, from: data)
@@ -321,7 +331,7 @@ struct ContentView: View {
             return []
         }
     }
-    
+
     private func updateTodoTitle(_ todo: Todo) {
         if let index = todos.firstIndex(where: { $0.id == todo.id }) {
             todos[index].title = editedTodoTitle
@@ -337,7 +347,7 @@ struct ContentView: View {
         alert.icon = NSImage(named: "AppIcon")
         alert.addButton(withTitle: "Save")
         alert.addButton(withTitle: "Cancel")
-        
+
         let settingsView = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 280))
         let sx=20, offset=90,sy=240
         var n=0
@@ -346,7 +356,7 @@ struct ContentView: View {
         let genaiLabel = NSTextField(labelWithString: "chatgpt:")
         genaiLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
         settingsView.addSubview(genaiLabel)
-        
+
         let genaiTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
         genaiTextField.stringValue = genaiURL
         genaiTextField.placeholderString = "Enter ChatGPT URL"
@@ -357,51 +367,51 @@ struct ContentView: View {
         let githubLabel = NSTextField(labelWithString: "github:")
         githubLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
         settingsView.addSubview(githubLabel)
-        
+
         let githubTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
         githubTextField.stringValue = githubURL
         githubTextField.placeholderString = "Enter GitHub URL"
         settingsView.addSubview(githubTextField)
         n=n+1
-        
+
         // LinkedIn URL field
         let linkedinLabel = NSTextField(labelWithString: "linkedin:")
         linkedinLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
         settingsView.addSubview(linkedinLabel)
-        
+
         let linkedinTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
         linkedinTextField.stringValue = linkedinURL
         linkedinTextField.placeholderString = "Enter LinkedIn URL"
         settingsView.addSubview(linkedinTextField)
         n=n+1
-        
+
         // Twitter URL field
         let twitterLabel = NSTextField(labelWithString: "twitter:")
         twitterLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
         settingsView.addSubview(twitterLabel)
-        
+
         let twitterTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
         twitterTextField.stringValue = twitterURL
         twitterTextField.placeholderString = "Enter Twitter URL"
         settingsView.addSubview(twitterTextField)
         n=n+1
-        
+
         // Instagram URL field
         let instagramLabel = NSTextField(labelWithString: "insta:")
         instagramLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
         settingsView.addSubview(instagramLabel)
-        
+
         let instagramTextField = NSTextField(frame: NSRect(x: 90, y: sy-(n*30), width: 276, height: 20))
         instagramTextField.stringValue = instagramURL
         instagramTextField.placeholderString = "Enter Instagram URL"
         settingsView.addSubview(instagramTextField)
         n=n+1
-        
+
         // TikTok URL field
         let tiktokLabel = NSTextField(labelWithString: "tiktok:")
         tiktokLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
         settingsView.addSubview(tiktokLabel)
-        
+
         let tiktokTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
         tiktokTextField.stringValue = tiktokURL
         tiktokTextField.placeholderString = "Enter TikTok URL"
@@ -418,9 +428,9 @@ struct ContentView: View {
         investTextField.placeholderString = "Enter Investing URL"
         settingsView.addSubview(investTextField)
         n=n+1
-        
+
         alert.accessoryView = settingsView
-        
+
         let response = alert.runModal()
         if response == .alertFirstButtonReturn {
             githubURL = githubTextField.stringValue
@@ -428,7 +438,7 @@ struct ContentView: View {
             twitterURL = twitterTextField.stringValue
             instagramURL = instagramTextField.stringValue
             tiktokURL = tiktokTextField.stringValue
-            
+
             UserDefaults.standard.set(githubURL, forKey: "githubURL")
             UserDefaults.standard.set(linkedinURL, forKey: "linkedinURL")
             UserDefaults.standard.set(twitterURL, forKey: "twitterURL")
