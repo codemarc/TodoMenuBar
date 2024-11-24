@@ -29,32 +29,6 @@ struct ContentView: View {
     }
 
 
-    fileprivate func socialButton(imageName: String, url: String) -> some View {
-        return Button(action: { NSWorkspace.shared.open(URL(string: url)!) }) {
-            Image(imageName)
-            .resizable()
-            .scaledToFit()
-            .padding(0)
-            .frame(width: 18, height: 18)
-            .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
-        }.buttonStyle(.plain)
-    }
-
-    fileprivate func outlookButton() -> some View {
-        return Button(action: {
-            if let outlookURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.microsoft.Outlook") {
-                NSWorkspace.shared.openApplication(at: outlookURL, configuration: NSWorkspace.OpenConfiguration())
-            }
-        }) {
-            Image("outlook")
-            .resizable()
-            .scaledToFit()
-            .padding(0)
-            .frame(width: 18, height: 18)
-            .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
-        }.buttonStyle(.plain)
-    }
-
     fileprivate func settingsButton() -> some View {
         return Button(action: showSettings) {
             Image(systemName: "gearshape.fill")
@@ -114,21 +88,25 @@ struct ContentView: View {
 			}.padding(8)
 	}
 
-	fileprivate func todoToolBar() -> some View {
-		return HStack(spacing: 12) {
-			socialButton(imageName: "cmc", url: cmcURL)
-			socialButton(imageName: "chatgpt", url: genaiURL)
-			socialButton(imageName: "github", url: githubURL)
-			socialButton(imageName: "linkedin", url: linkedinURL)
-			socialButton(imageName: "twitter", url: twitterURL)
-			socialButton(imageName: "instagram", url: instagramURL)
-			socialButton(imageName: "tiktok", url: tiktokURL)
-			socialButton(imageName: "invest", url: investURL)
-			outlookButton()
-		}
-		.padding(.horizontal)
-		.frame(maxWidth: .infinity, alignment: .leading)
-	}
+
+    fileprivate func todoToolBar() -> some View {
+        return HStack(spacing: 12) {
+        ToolbarButton(imageName: "cmc", url: cmcURL, tooltip: "CodeMarc")
+        ToolbarButton(imageName: "chatgpt", url: genaiURL, tooltip: "ChatGPT")
+        ToolbarButton(imageName: "github", url: githubURL, tooltip: "GitHub")
+        ToolbarButton(imageName: "linkedin", url: linkedinURL, tooltip: "LinkedIn")
+        ToolbarButton(imageName: "twitter", url: twitterURL, tooltip: "Twitter")
+        ToolbarButton(imageName: "instagram", url: instagramURL, tooltip: "Instagram")
+        ToolbarButton(imageName: "tiktok", url: tiktokURL, tooltip: "TikTok")
+        ToolbarButton(imageName: "invest", url: investURL, tooltip: "Investments")
+        ToolbarButton(imageName: "outlook", url: "com.microsoft.Outlook", tooltip: "outlook")
+    }
+    .padding(.horizontal)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+
+
 
 	fileprivate func todoList() -> some View {
 		return  List(selection: $selectedTodoId) {
@@ -447,7 +425,5 @@ struct ContentView: View {
         }
         showMenu = false
     }
-
-
 
 }

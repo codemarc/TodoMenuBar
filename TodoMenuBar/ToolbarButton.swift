@@ -6,7 +6,18 @@ struct ToolbarButton: View {
     let tooltip: String
 
     var body: some View {
-        Button(action: { NSWorkspace.shared.open(URL(string: url)!) }) {
+        Button(action: {
+            if imageName == "outlook" {
+                if let outlookURL = NSWorkspace.shared.urlForApplication(
+                    withBundleIdentifier: "com.microsoft.Outlook")
+                {
+                    NSWorkspace.shared.openApplication(
+                        at: outlookURL, configuration: NSWorkspace.OpenConfiguration())
+                }
+            } else {
+                NSWorkspace.shared.open(URL(string: url)!)
+            }
+        }) {
             Image(imageName)
                 .resizable()
                 .scaledToFit()

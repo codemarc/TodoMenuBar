@@ -48,16 +48,6 @@
 			path = TodoMenuBar;
 			sourceTree = "<group>";
 		};
-		49FC71CA2CDE253000B07A57 /* TodoMenuBarTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TodoMenuBarTests;
-			sourceTree = "<group>";
-		};
-		49FC71D42CDE253000B07A57 /* TodoMenuBarUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TodoMenuBarUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,8 +79,6 @@
 			isa = PBXGroup;
 			children = (
 				49FC71B82CDE252D00B07A57 /* TodoMenuBar */,
-				49FC71CA2CDE253000B07A57 /* TodoMenuBarTests */,
-				49FC71D42CDE253000B07A57 /* TodoMenuBarUITests */,
 				49FC71B72CDE252D00B07A57 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -143,9 +131,6 @@
 			dependencies = (
 				49FC71C92CDE253000B07A57 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				49FC71CA2CDE253000B07A57 /* TodoMenuBarTests */,
-			);
 			name = TodoMenuBarTests;
 			packageProductDependencies = (
 			);
@@ -165,9 +150,6 @@
 			);
 			dependencies = (
 				49FC71D32CDE253000B07A57 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				49FC71D42CDE253000B07A57 /* TodoMenuBarUITests */,
 			);
 			name = TodoMenuBarUITests;
 			packageProductDependencies = (
