@@ -21,7 +21,7 @@ struct ContentView: View {
     @State private var cmcURL: String = UserDefaults.standard.string(forKey: "cmcURL") ?? "https://codemarc.net"
 
 
-    private let appVersion = "1.1.4"
+    private let appVersion = "1.1.5"
 
     init() {
         let loadedTodos = loadTodos()
