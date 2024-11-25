@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var isEditing = false
     @State private var editedTodoTitle: String = ""
     @State private var plusButton: NSButton?
+    @State private var showingDatePicker = false
 
     @State private var genaiURL: String = UserDefaults.standard.string(forKey: "genaiURL") ?? "https://ai.com"
     @State private var githubURL: String = UserDefaults.standard.string(forKey: "githubURL") ?? "https://github.com"
@@ -118,6 +119,35 @@ struct ContentView: View {
                             .foregroundColor(.white)
                             .opacity(0.8)
                             .font(.system(size: 14, weight: .bold))
+                            .onTapGesture(count: 2) { // Double tap gesture
+                                if let index = todos.firstIndex(where: { $0.id == selectedTodoId }) {
+                                            if todos[index].due != nil {
+                                                // Remove due date if it exists
+                                                todos[index].due = nil
+                                            } else {
+                                                // Show date picker to set due date
+                                                showingDatePicker = true
+                                            }
+                                            saveTodos()
+                                        }
+                            }
+                            .popover(isPresented: $showingDatePicker) {
+                                DatePicker("Due Date", selection: Binding(
+                                get: { todos.first(where: { $0.id == selectedTodoId })?.due ?? Date() },
+                                set: { newDate in
+                                    if let index = todos.firstIndex(where: { $0.id == selectedTodoId }) {
+                                        todos[index].due = newDate
+                                        saveTodos()
+                                    }
+                                }
+                            ),
+                            displayedComponents: [.date, .hourAndMinute]
+                            )
+                                .datePickerStyle(.graphical)
+                            .padding()
+
+                            }
+
                         }
 
                         Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -133,9 +163,18 @@ struct ContentView: View {
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .foregroundColor(.white)
                         } else {
-                            Text(todo.title)
+                            if(todo.due != nil) {
+                                Text(todo.title + "\n" + (todo.due?.formatted(date: .complete, time: .shortened) ?? ""))
+                                .font(.system(size: 11))
                                 .strikethrough(todo.isCompleted)
                                 .foregroundColor(selectedTodoId == todo.id ? .secondary : .primary)
+                            } else {
+                                Text(todo.title)
+                                .strikethrough(todo.isCompleted)
+                                .foregroundColor(selectedTodoId == todo.id ? .secondary : .primary)
+                            }
+
+
                         }
                         Spacer()
                     }
@@ -186,6 +225,11 @@ struct ContentView: View {
     private func toggleTodo(_ todo: Todo) {
         if let index = todos.firstIndex(where: { $0.id == todo.id }) {
             todos[index].isCompleted.toggle()
+            if todos[index].isCompleted {
+                todos[index].completed = Date()
+            } else {
+                todos[index].completed = nil
+            }
             saveTodos()
         }
     }
