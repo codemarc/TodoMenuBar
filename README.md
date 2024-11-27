@@ -8,7 +8,7 @@ Welcome to my **TodoMenuBar App**—a badass creation forged out of need, passio
 
 This project was **born fast and furious**, from inception to deployment in less than two hours—no filler, all killer. Built with a cocktail of **Cody from Sourcegraph**, **Visual Studio Code**, and the raw power of **Apple’s Xcode and Swift**. This app is what happens when precision meets artistry and a little AI-driven magic adds fuel to the fire.
 
-**Hashtags? Sure, why the hell not.**  
+**Hashtags? Sure, why the hell not.**
 #RealDevelopersUseAI #WhatsNext #TShaped #SoftwareArtisan
 
 ## Features You’ll Love (And Why You’ll Never Go Back)
@@ -17,7 +17,7 @@ This project was **born fast and furious**, from inception to deployment in less
 - **Swift-Powered Brilliance** – Because speed and beauty matter.
 - **Visual Studio & Xcode Magic** – A marriage made in coding heaven.
 - **Cody's AI Assistance** – When humans and AI collaborate, masterpieces are born.
-  
+
 ---
 
 *Because todos should be yours to conquer—not just a list of forgettable chores.*
@@ -66,5 +66,31 @@ In the settings, you can configure the URLs for various social media platforms. 
 
 ## About
 
-Created By: Marc J. Greenberg (marc@codemarc.net)  
+Created By: Marc J. Greenberg (marc@codemarc.net)
 Coded by: Cody (Sourcegraph)
+
+## Notes
+
+### Create a DMG installer for the TodoMenuBar app
+
+Open the Terminal app, int the root of the project.
+
+```bash
+  xcodebuild -scheme TodoMenuBar -configuration Release
+
+  mkdir -p /tmp/dmg-contents
+
+  ## From the root of the build directory,
+  ## (in xcode Product Menu -> Copy Build Folder Path)
+  ## run the following command:
+
+  cp -r "Build/Products/Release/TodoMenuBar.app" /tmp/dmg-contents/
+
+  ln -s /Applications /tmp/dmg-contents/Applications
+
+  hdiutil create -volname "TodoMenuBar" -srcfolder /tmp/dmg-contents -ov -format UDZO "TodoMenuBar.dmg"
+
+```
+
+
+

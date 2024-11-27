@@ -22,7 +22,7 @@ struct ContentView: View {
     @State private var cmcURL: String = UserDefaults.standard.string(forKey: "cmcURL") ?? "https://codemarc.net"
 
 
-    private let appVersion = "1.1.5"
+    private let appVersion = "1.1.6"
 
     init() {
         let loadedTodos = loadTodos()
@@ -280,15 +280,42 @@ struct ContentView: View {
         NSApplication.shared.terminate(nil)
     }
 
+
     private func showAbout() {
         let alert = NSAlert()
-        alert.messageText = "TodoMenuBar"
-        alert.informativeText = "A simple menu bar todo list app\nVersion \(appVersion)\n\nCreated By Marc J. Greenberg (marc@codemarc.net)\nCoded by GenAI (CODY: CHAT)"
+        alert.messageText = "TodoMenuBar v\(appVersion)"
         alert.alertStyle = .informational
         alert.icon = NSImage(named: "AppIcon")
         alert.addButton(withTitle: "OK")
-        // alert.accessoryView = NSTextField(labelWithString: alert.informativeText)
-        // (alert.accessoryView as? NSTextField)?.alignment = .left
+
+        let informativeText = """
+
+        A simple menu bar todo list app
+
+        Created By Marc J. Greenberg (marc@codemarc.net)
+        Coded by GenAI (CODY: CHAT)
+
+        For more info see: https://codemarc.net/apps/todo
+
+        """
+
+        let attributedString = NSMutableAttributedString(string: informativeText)
+        let linkRange = (informativeText as NSString).range(of: "https://codemarc.net/apps/todo")
+        attributedString.addAttribute(.link, value: "https://codemarc.net/apps/todo", range: linkRange)
+        attributedString.addAttribute(.foregroundColor, value: NSColor.white, range: NSRange(location: 0, length: attributedString.length))
+        attributedString.addAttribute(.foregroundColor, value: NSColor.green, range: linkRange)
+        alert.informativeText = ""
+
+        let textView = NSTextView(frame: NSRect(x: 0, y: 0, width: 300, height: 100))
+        textView.wantsLayer = true
+        textView.layer?.cornerRadius = 5
+        textView.isEditable = false
+        textView.drawsBackground = true
+        textView.backgroundColor = NSColor.black.withAlphaComponent(0.5)
+        textView.textStorage?.setAttributedString(attributedString)
+        textView.alignment = .center
+        alert.accessoryView = textView
+
         alert.runModal()
         showMenu = false
     }
