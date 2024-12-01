@@ -22,7 +22,7 @@ struct ContentView: View {
     @State private var cmcURL: String = UserDefaults.standard.string(forKey: "cmcURL") ?? "https://codemarc.net"
 
 
-    private let appVersion = "1.1.6"
+    private let appVersion = "1.1.7"
 
     init() {
         let loadedTodos = loadTodos()
@@ -91,7 +91,7 @@ struct ContentView: View {
 
 
     fileprivate func todoToolBar() -> some View {
-        return HStack(spacing: 12) {
+        return HStack(spacing: 10) {
         ToolbarButton(imageName: "cmc", url: cmcURL, tooltip: "CodeMarc")
         ToolbarButton(imageName: "chatgpt", url: genaiURL, tooltip: "ChatGPT")
         ToolbarButton(imageName: "github", url: githubURL, tooltip: "GitHub")
@@ -100,14 +100,19 @@ struct ContentView: View {
         ToolbarButton(imageName: "instagram", url: instagramURL, tooltip: "Instagram")
         ToolbarButton(imageName: "tiktok", url: tiktokURL, tooltip: "TikTok")
         ToolbarButton(imageName: "invest", url: investURL, tooltip: "Investments")
-        ToolbarButton(imageName: "outlook", url: "com.microsoft.Outlook", tooltip: "outlook")
+
+        // to get the bundle identifier for an app, use this command in Terminal:
+        // osascript -e 'id of app "AppName"'
+        // e.g., osascript -e 'id of app "Microsoft Outlook"'
+
+        // ToolbarButton(imageName: "calc", url: "com.apple.calculator", tooltip: "Calculator")
+        ToolbarButton(imageName: "calc", url: "com.holgersindbaek.calculatorproject", tooltip: "Calculator")
+
+        ToolbarButton(imageName: "outlook", url: "com.microsoft.Outlook", tooltip: "Outlook")
     }
     .padding(.horizontal)
     .frame(maxWidth: .infinity, alignment: .leading)
     }
-
-
-
 
 	fileprivate func todoList() -> some View {
 		return  List(selection: $selectedTodoId) {
@@ -193,8 +198,6 @@ struct ContentView: View {
                 .onDelete(perform: deleteTodos)
             }
 	}
-
-
 
 	var body: some View {
 		VStack {

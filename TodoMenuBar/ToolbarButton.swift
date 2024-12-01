@@ -7,12 +7,12 @@ struct ToolbarButton: View {
 
     var body: some View {
         Button(action: {
-            if imageName == "outlook" {
-                if let outlookURL = NSWorkspace.shared.urlForApplication(
-                    withBundleIdentifier: "com.microsoft.Outlook")
+            if !url.hasPrefix("http") {
+                if let oURL = NSWorkspace.shared.urlForApplication(
+                    withBundleIdentifier: url)
                 {
                     NSWorkspace.shared.openApplication(
-                        at: outlookURL, configuration: NSWorkspace.OpenConfiguration())
+                        at: oURL, configuration: NSWorkspace.OpenConfiguration())
                 }
             } else {
                 NSWorkspace.shared.open(URL(string: url)!)
