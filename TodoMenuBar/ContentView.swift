@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var plusButton: NSButton?
     @State private var showingDatePicker = false
 
+    @State private var cmcURL: String = UserDefaults.standard.string(forKey: "cmcURL") ?? "https://codemarc.net"
     @State private var genaiURL: String = UserDefaults.standard.string(forKey: "genaiURL") ?? "https://ai.com"
     @State private var githubURL: String = UserDefaults.standard.string(forKey: "githubURL") ?? "https://github.com"
     @State private var linkedinURL: String = UserDefaults.standard.string(forKey: "linkedinURL") ?? "https://linkedin.com"
@@ -19,7 +20,16 @@ struct ContentView: View {
     @State private var instagramURL: String = UserDefaults.standard.string(forKey: "instagramURL") ?? "https://instagram.com"
     @State private var tiktokURL: String = UserDefaults.standard.string(forKey: "tiktokURL") ?? "https://tiktok.com"
     @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "https://client.schwab.com/app/accounts/positions/#/"
-    @State private var cmcURL: String = UserDefaults.standard.string(forKey: "cmcURL") ?? "https://codemarc.net"
+
+    // to get the bundle identifier for an app, use this command in Terminal: osascript -e 'id of app "AppName"'
+    // where the AppName is the name of the app you want to get the bundle identifier for
+    // "Mail", "Caclulator", or "Calculator Pro • Topbar App",  etc.
+    // For example, to get the bundle identifier for Microsoft Outlook, use this command:
+    // osascript -e 'id of app "Microsoft Outlook"'
+    // com.microsoft.Outlook
+
+    @State private var calcURL: String = UserDefaults.standard.string(forKey: "calcURL") ?? "com.apple.calculator"
+    @State private var mailURL: String = UserDefaults.standard.string(forKey: "mailURL") ?? "com.microsoft.Outlook"
 
 
     private let appVersion = "1.1.7"
@@ -100,15 +110,8 @@ struct ContentView: View {
         ToolbarButton(imageName: "instagram", url: instagramURL, tooltip: "Instagram")
         ToolbarButton(imageName: "tiktok", url: tiktokURL, tooltip: "TikTok")
         ToolbarButton(imageName: "invest", url: investURL, tooltip: "Investments")
-
-        // to get the bundle identifier for an app, use this command in Terminal:
-        // osascript -e 'id of app "AppName"'
-        // e.g., osascript -e 'id of app "Microsoft Outlook"'
-
-        // ToolbarButton(imageName: "calc", url: "com.apple.calculator", tooltip: "Calculator")
-        ToolbarButton(imageName: "calc", url: "com.holgersindbaek.calculatorproject", tooltip: "Calculator")
-
-        ToolbarButton(imageName: "outlook", url: "com.microsoft.Outlook", tooltip: "Outlook")
+        ToolbarButton(imageName: "calc", url: calcURL, tooltip: "Calculator")
+        ToolbarButton(imageName: "outlook", url: mailURL, tooltip: "Mail")
     }
     .padding(.horizontal)
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -400,86 +403,33 @@ struct ContentView: View {
         alert.addButton(withTitle: "Save")
         alert.addButton(withTitle: "Cancel")
 
-        let settingsView = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 280))
-        let sx=20, offset=90,sy=240
+        let settingsView = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 290))
+        let sx=20, offset=90,sy=270
         var n=0
 
-        // GenAi URL field
-        let genaiLabel = NSTextField(labelWithString: "chatgpt:")
-        genaiLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
-        settingsView.addSubview(genaiLabel)
+        func setupField(lbl: String, url: String) -> NSTextField {
+            let label = NSTextField(labelWithString: lbl)
+            label.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
+            settingsView.addSubview(label)
 
-        let genaiTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
-        genaiTextField.stringValue = genaiURL
-        genaiTextField.placeholderString = "Enter ChatGPT URL"
-        settingsView.addSubview(genaiTextField)
-        n=n+1
+            let textField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
+            textField.stringValue = url
+            textField.placeholderString = "Enter URL"
+            settingsView.addSubview(textField)
+            n=n+1
+            return textField
+        }
 
-        // GitHub URL field
-        let githubLabel = NSTextField(labelWithString: "github:")
-        githubLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
-        settingsView.addSubview(githubLabel)
+        let genaiTextField = setupField(lbl: "genai:", url: genaiURL)
+        let githubTextField = setupField(lbl: "github:", url: githubURL)
+        let linkedinTextField = setupField(lbl: "linkedin:", url: linkedinURL)
+        let twitterTextField = setupField(lbl: "twitter:", url: twitterURL)
+        let instagramTextField = setupField(lbl: "insta:", url: instagramURL)
+        let tiktokTextField = setupField(lbl: "tiktok:", url: tiktokURL)
+        let investTextField = setupField(lbl: "invest:", url: investURL)
+        let calcTextField = setupField(lbl: "calc:", url: calcURL)
+        let mailTextField = setupField(lbl: "email:", url: mailURL)
 
-        let githubTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
-        githubTextField.stringValue = githubURL
-        githubTextField.placeholderString = "Enter GitHub URL"
-        settingsView.addSubview(githubTextField)
-        n=n+1
-
-        // LinkedIn URL field
-        let linkedinLabel = NSTextField(labelWithString: "linkedin:")
-        linkedinLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
-        settingsView.addSubview(linkedinLabel)
-
-        let linkedinTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
-        linkedinTextField.stringValue = linkedinURL
-        linkedinTextField.placeholderString = "Enter LinkedIn URL"
-        settingsView.addSubview(linkedinTextField)
-        n=n+1
-
-        // Twitter URL field
-        let twitterLabel = NSTextField(labelWithString: "twitter:")
-        twitterLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
-        settingsView.addSubview(twitterLabel)
-
-        let twitterTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
-        twitterTextField.stringValue = twitterURL
-        twitterTextField.placeholderString = "Enter Twitter URL"
-        settingsView.addSubview(twitterTextField)
-        n=n+1
-
-        // Instagram URL field
-        let instagramLabel = NSTextField(labelWithString: "insta:")
-        instagramLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
-        settingsView.addSubview(instagramLabel)
-
-        let instagramTextField = NSTextField(frame: NSRect(x: 90, y: sy-(n*30), width: 276, height: 20))
-        instagramTextField.stringValue = instagramURL
-        instagramTextField.placeholderString = "Enter Instagram URL"
-        settingsView.addSubview(instagramTextField)
-        n=n+1
-
-        // TikTok URL field
-        let tiktokLabel = NSTextField(labelWithString: "tiktok:")
-        tiktokLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
-        settingsView.addSubview(tiktokLabel)
-
-        let tiktokTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
-        tiktokTextField.stringValue = tiktokURL
-        tiktokTextField.placeholderString = "Enter TikTok URL"
-        settingsView.addSubview(tiktokTextField)
-        n=n+1
-
-        // Invest URL field
-        let investLabel = NSTextField(labelWithString: "invest:")
-        investLabel.frame = NSRect(x: sx, y: sy-(n*30), width: 80, height: 20)
-        settingsView.addSubview(investLabel)
-
-        let investTextField = NSTextField(frame: NSRect(x: offset, y: sy-(n*30), width: 276, height: 20))
-        investTextField.stringValue = investURL
-        investTextField.placeholderString = "Enter Investing URL"
-        settingsView.addSubview(investTextField)
-        n=n+1
 
         alert.accessoryView = settingsView
 
@@ -490,12 +440,18 @@ struct ContentView: View {
             twitterURL = twitterTextField.stringValue
             instagramURL = instagramTextField.stringValue
             tiktokURL = tiktokTextField.stringValue
+            investURL = investTextField.stringValue
+            calcURL = calcTextField.stringValue
+            mailURL = mailTextField.stringValue
 
             UserDefaults.standard.set(githubURL, forKey: "githubURL")
             UserDefaults.standard.set(linkedinURL, forKey: "linkedinURL")
             UserDefaults.standard.set(twitterURL, forKey: "twitterURL")
             UserDefaults.standard.set(instagramURL, forKey: "instagramURL")
             UserDefaults.standard.set(tiktokURL, forKey: "tiktokURL")
+            UserDefaults.standard.set(investURL, forKey: "investURL")
+            UserDefaults.standard.set(calcURL, forKey: "calcURL")
+            UserDefaults.standard.set(mailURL, forKey: "mailURL")
         }
         showMenu = false
     }
