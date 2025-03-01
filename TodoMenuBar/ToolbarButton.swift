@@ -23,7 +23,7 @@ struct ToolbarButton: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 18, height: 18)
-                .colorMultiply(colorScheme == .dark ? .white : .black)
+                //.colorMultiply(colorScheme == .dark ? .white : .black)
                 .help(tooltip)
                 .onHover { hovering in
                     if hovering {
