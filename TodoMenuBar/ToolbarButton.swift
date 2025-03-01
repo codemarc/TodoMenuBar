@@ -4,6 +4,7 @@ struct ToolbarButton: View {
     let imageName: String
     let url: String
     let tooltip: String
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         Button(action: {
@@ -22,6 +23,7 @@ struct ToolbarButton: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 18, height: 18)
+                .colorMultiply(colorScheme == .dark ? .white : .black)
                 .help(tooltip)
                 .onHover { hovering in
                     if hovering {

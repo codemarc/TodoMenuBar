@@ -89,11 +89,11 @@ Open the Terminal app, int the root of the project.
 
 
   # ALTERNATE after you sign and export the app to the desktop
-  mkdir -p dmg-contents
-  mv ~/Desktop/TodoMenuBar.app dmg-contents/
-  ln -s /Applications dmg-contents/Applications
-  hdiutil create -volname "TodoMenuBar" -srcfolder dmg-contents -ov -format UDZO "TodoMenuBar.dmg"
-  rm -rf dmg-contents/
+  mkdir -p tmp/dmg-contents
+  mv ~/Desktop/TodoMenuBar.app tmp/dmg-contents
+  ln -s /Applications tmp/dmg-contents/Applications
+  hdiutil create -volname "TodoMenuBar" -srcfolder tmp/dmg-contents -ov -format UDZO "TodoMenuBar.dmg"
+  rm -rf tmp
 
 ```
 

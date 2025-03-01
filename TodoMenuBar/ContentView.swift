@@ -19,7 +19,7 @@ struct ContentView: View {
     @State private var twitterURL: String = UserDefaults.standard.string(forKey: "twitterURL") ?? "https://twitter.com"
     @State private var instagramURL: String = UserDefaults.standard.string(forKey: "instagramURL") ?? "https://instagram.com"
     @State private var tiktokURL: String = UserDefaults.standard.string(forKey: "tiktokURL") ?? "https://tiktok.com"
-    @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "https://client.schwab.com/app/accounts/positions/#/"
+    // @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "https://client.schwab.com/app/accounts/positions/#/"
 
     // to get the bundle identifier for an app, use this command in Terminal: osascript -e 'id of app "AppName"'
     // where the AppName is the name of the app you want to get the bundle identifier for
@@ -31,8 +31,11 @@ struct ContentView: View {
     @State private var calcURL: String = UserDefaults.standard.string(forKey: "calcURL") ?? "com.apple.calculator"
     @State private var mailURL: String = UserDefaults.standard.string(forKey: "mailURL") ?? "com.microsoft.Outlook"
 
+    // ThinkOrSwim this is non obvious
+    // osascript -e 'id of app "ThinkOrSwim"'
+    @State private var investURL: String = UserDefaults.standard.string(forKey: "investURL") ?? "com.install4j.9968-4488-2169-7623.18"
 
-    private let appVersion = "1.1.7"
+    private let appVersion = "1.1.9"
 
     init() {
         let loadedTodos = loadTodos()
@@ -46,7 +49,7 @@ struct ContentView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 18, height: 18)
-            .colorMultiply(colorScheme != .dark ? .white : .black) // Adjust color for dark mode
+            .colorMultiply(colorScheme == .dark ? .white : .black) // Adjust color for dark mode
             .onHover { hovering in if hovering { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }}
         }.buttonStyle(.plain)
     }
@@ -103,13 +106,13 @@ struct ContentView: View {
     fileprivate func todoToolBar() -> some View {
         return HStack(spacing: 10) {
         ToolbarButton(imageName: "cmc", url: cmcURL, tooltip: "CodeMarc")
+        ToolbarButton(imageName: "invest", url: investURL, tooltip: "Investments")
         ToolbarButton(imageName: "chatgpt", url: genaiURL, tooltip: "ChatGPT")
         ToolbarButton(imageName: "github", url: githubURL, tooltip: "GitHub")
         ToolbarButton(imageName: "linkedin", url: linkedinURL, tooltip: "LinkedIn")
         ToolbarButton(imageName: "twitter", url: twitterURL, tooltip: "Twitter")
         ToolbarButton(imageName: "instagram", url: instagramURL, tooltip: "Instagram")
         ToolbarButton(imageName: "tiktok", url: tiktokURL, tooltip: "TikTok")
-        ToolbarButton(imageName: "invest", url: investURL, tooltip: "Investments")
         ToolbarButton(imageName: "calc", url: calcURL, tooltip: "Calculator")
         ToolbarButton(imageName: "outlook", url: mailURL, tooltip: "Mail")
     }
@@ -288,41 +291,64 @@ struct ContentView: View {
 
 
     private func showAbout() {
-        let alert = NSAlert()
-        alert.messageText = "TodoMenuBar v\(appVersion)"
-        alert.alertStyle = .informational
-        alert.icon = NSImage(named: "AppIcon")
-        alert.addButton(withTitle: "OK")
+        // Activate the application first
+        NSApp.activate(ignoringOtherApps: true)
 
-        let informativeText = """
-
-        A simple menu bar todo list app
+        // Create attributed string for credits
+        let creditsString = NSMutableAttributedString(string: """
+        A simple menu bar todo list app for macOS
 
         Created By Marc J. Greenberg (marc@codemarc.net)
-        Coded by GenAI (CODY: CHAT)
 
-        For more info see: https://codemarc.net/apps/todo
+        For more info visit
+        https://codemarc.net/apps/todo
+        """)
 
-        """
+        // Style the credits text
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        paragraphStyle.lineSpacing = 4
 
-        let attributedString = NSMutableAttributedString(string: informativeText)
-        let linkRange = (informativeText as NSString).range(of: "https://codemarc.net/apps/todo")
-        attributedString.addAttribute(.link, value: "https://codemarc.net/apps/todo", range: linkRange)
-        attributedString.addAttribute(.foregroundColor, value: NSColor.white, range: NSRange(location: 0, length: attributedString.length))
-        attributedString.addAttribute(.foregroundColor, value: NSColor.green, range: linkRange)
-        alert.informativeText = ""
+        // Apply paragraph style to entire text
+        creditsString.addAttribute(
+            .paragraphStyle,
+            value: paragraphStyle,
+            range: NSRange(location: 0, length: creditsString.length)
+        )
 
-        let textView = NSTextView(frame: NSRect(x: 0, y: 0, width: 300, height: 100))
-        textView.wantsLayer = true
-        textView.layer?.cornerRadius = 5
-        textView.isEditable = false
-        textView.drawsBackground = true
-        textView.backgroundColor = NSColor.black.withAlphaComponent(0.5)
-        textView.textStorage?.setAttributedString(attributedString)
-        textView.alignment = .center
-        alert.accessoryView = textView
+        // Apply font to entire text
+        creditsString.addAttribute(
+            .font,
+            value: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
+            range: NSRange(location: 0, length: creditsString.length)
+        )
 
-        alert.runModal()
+        // Make the URL clickable
+        let urlString = "https://codemarc.net/apps/todo"
+        let urlRange = (creditsString.string as NSString).range(of: urlString)
+        creditsString.addAttribute(.link, value: urlString, range: urlRange)
+        creditsString.addAttribute(.foregroundColor, value: NSColor.linkColor, range: urlRange)
+        creditsString.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: urlRange)
+
+        // Use the standard macOS about panel
+        NSApplication.shared.orderFrontStandardAboutPanel(
+            options: [
+                NSApplication.AboutPanelOptionKey.version: appVersion,
+                NSApplication.AboutPanelOptionKey.credits: creditsString,
+                NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "© 2025 Marc J. Greenberg"
+            ]
+        )
+
+        // Ensure the About panel comes to front, becomes key, and receives focus
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            if let aboutWindow = NSApplication.shared.windows.first(where: { $0.title == "About TodoMenuBar" }) {
+                aboutWindow.makeKeyAndOrderFront(nil)
+                aboutWindow.level = .floating
+                aboutWindow.makeKey()
+                aboutWindow.makeFirstResponder(nil)
+            }
+        }
+
         showMenu = false
     }
 

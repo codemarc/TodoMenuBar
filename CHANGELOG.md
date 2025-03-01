@@ -1,9 +1,26 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to TodoMenuBar will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.9] - 2025-03-01
+
+### Added
+- Added proper window focus management for About dialog
+- Added application activation when showing About dialog
+
+### Changed
+- Improved About dialog to use native macOS styling
+- Enhanced About dialog window behavior:
+  - Now properly comes to front when opened
+  - Sets correct window level to stay visible
+  - Improved focus handling and activation
+  - Uses system standard window styling
+- Updated copyright year to 2025
+- Improved URL handling in About dialog with proper styling and clickable links
+
 
 ## [1.1.8] - 2024-03-17
 
